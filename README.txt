@@ -87,3 +87,100 @@ More learning
 - Add functions to chaincode (getAllCars, deleteCar) to practice query ranges and state iteration.
 
 -- End of README
+
+STEP 1 — Install everything (run in CMD as Administrator)
+choco install -y git docker-desktop nodejs-lts temurin11 maven unzip
+
+
+Then open Docker Desktop manually and let it start the Docker engine.
+When Docker is running, continue below.
+
+🧩 STEP 2 — Clone your GitHub repo (normal CMD)
+cd %HOMEPATH%\Downloads
+git clone https://github.com/Dharsenipriya/cbt.git
+
+
+You’ll now have:
+
+C:\Users\dhars\Downloads\cbt\
+  ├─ chaincode\
+  ├─ application-java\
+  └─ README.txt
+
+🧩 STEP 3 — Get Hyperledger Fabric samples (normal CMD)
+cd %HOMEPATH%\Downloads
+git clone https://github.com/hyperledger/fabric-samples.git
+
+
+You’ll now have:
+
+C:\Users\dhars\Downloads\fabric-samples\
+  └─ test-network\
+
+🧩 STEP 4 — Copy your code into the Fabric sample structure (normal CMD)
+xcopy /E /I /Y "%HOMEPATH%\Downloads\cbt\chaincode" "%HOMEPATH%\Downloads\fabric-samples\chaincode"
+xcopy /E /I /Y "%HOMEPATH%\Downloads\cbt\application-java" "%HOMEPATH%\Downloads\fabric-samples\test-network\application-java"
+
+🧩 STEP 5 — Start the Fabric test network (run Git Bash, not CMD)
+
+💡 Open “Git Bash” from Start Menu → right-click → Run as Administrator.
+
+cd /c/Users/dhars/Downloads/fabric-samples/test-network
+./network.sh up createChannel -ca
+
+
+Wait until you see messages like
+"Network up and running" and "Channel 'mychannel' created".
+
+🧩 STEP 6 — Deploy the car-auction chaincode (Git Bash)
+./network.sh deployCC -ccn carauction -ccp ../chaincode/car-auction -ccl node
+
+
+If it ends with Chaincode definition committed successfully, you’re good.
+
+🧩 STEP 7 — Create a wallet identity (Git Bash)
+
+If the test-network provides an addOrg1User.js helper (check test-network folder):
+
+node ./addOrg1User.js
+
+
+If that file doesn’t exist, check in
+organizations/peerOrganizations/org1.example.com/users/
+for an existing user identity (you can later import it manually).
+
+🧩 STEP 8 — Run the Java client (back to CMD)
+cd %HOMEPATH%\Downloads\fabric-samples\test-network\application-java
+mvn package
+mvn exec:java -Dexec.mainClass=org.example.App
+
+
+You should see console output similar to:
+
+-> createCar CAR1
+   created
+-> startAuction CAR1 1000
+   started
+-> placeBid CAR1 1200
+   bid placed
+-> queryCar CAR1
+   Car state: {...}
+-> finalizeAuction CAR1
+   Finalize result: ...
+
+🧩 STEP 9 — Verify and shut down (Git Bash)
+
+When you’re done experimenting:
+
+cd /c/Users/dhars/Downloads/fabric-samples/test-network
+./network.sh down
+
+
+That stops and removes all Docker containers.
+
+✅ Summary of which shell to use
+Task	Shell
+Installing tools	CMD (Admin)
+Git clone / copy files	CMD
+Running Fabric scripts (network.sh)	Git Bash
+Building/running Java client	CMD
